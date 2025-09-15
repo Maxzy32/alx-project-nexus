@@ -25,7 +25,9 @@ SECRET_KEY = 'django-insecure-#1msh%+0c2rrm$y(-$1+6&u41l4!kl8_c$ot-3cgz!*6!fcc#h
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "localhost",]
+
+AUTH_USER_MODEL = "users.User"
 
 
 # Application definition
@@ -46,16 +48,22 @@ INSTALLED_APPS = [
     # Local
     "users",
     "polls",
+    "authentication",
+    "candidates",
+    "votes",
 ]
 
 
 # ASGI_APPLICATION = "poll_system.asgi.application"
+ASGI_APPLICATION = "alx_project_nesux.asgi.application"
 
 # Redis channel layer
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {"hosts": [("localhost", 6379)]},
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],  # change to Render Redis in prod
+        },
     },
 }
 
@@ -87,6 +95,25 @@ TEMPLATES = [
     },
 ]
 
+
+SWAGGER_SETTINGS = {
+    "USE_SESSION_AUTH": False,
+    "SECURITY_DEFINITIONS": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+        }
+    },
+    # ✅ Correct keys for using CDN
+    "USE_SWAGGER_UI": True,
+    "SWAGGER_UI_DIST": "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.5/",
+    "SWAGGER_UI_FAVICON_HREF": "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.5/favicon-32x32.png",
+}
+
+
+
+
 WSGI_APPLICATION = 'poll_system.wsgi.application'
 
 
@@ -94,9 +121,16 @@ WSGI_APPLICATION = 'poll_system.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "nesux_db",
+        "USER": "nesux_user",
+        "PASSWORD": "root",
+        "HOST": "localhost",
+        "PORT": "5432",
+        "OPTIONS": {
+            "options": "-c search_path=nesux,public"
+        },
     }
 }
 
@@ -135,7 +169,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+
+STATIC_URL = "/static/"
+STATICFILES_DIRS = []
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
