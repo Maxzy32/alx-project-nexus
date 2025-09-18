@@ -57,13 +57,15 @@ router.register(r'users', UserViewSet, basename='user')
 router.register(r'polls', PollViewSet, basename='poll')
 router.register(r'poll-options', PollOptionViewSet, basename='poll-option')
 router.register(r'candidates', CandidateViewSet, basename='candidate')
-router.register(r'votes', VoteViewSet, basename='vote')
+# router.register(r'votes', VoteViewSet, basename='vote')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path("api/auth/", include("authentication.urls")),
     path("api/polls/<int:poll_id>/results/", PollResultsView.as_view(), name="poll-results"),
+     # Include votes app URLs
+    path("api/votes/", include("votes.urls")),
 
     # # Swagger docs
     # re_path(r"^swagger(?P<format>\.json|\.yaml)$", schema_view.without_ui(cache_timeout=0), name="schema-json"),

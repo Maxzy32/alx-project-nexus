@@ -8,29 +8,18 @@ https://docs.djangoproject.com/en/5.0/howto/deployment/asgi/
 """
 
 import os
-
 from django.core.asgi import get_asgi_application
-
-import os
-import django
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
-from django.core.asgi import get_asgi_application
-from django.urls import path
-from votes.consumers import VoteConsumer
-from polls.consumers import PollConsumer
+import votes.routing  # ✅ import only routing, not consumers
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "poll_system.settings")
-django.setup()
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
     "websocket": AuthMiddlewareStack(
-        URLRouter([
-            path("ws/votes/<int:poll_id>/", VoteConsumer.as_asgi()),
-        ])
+        URLRouter(
+            votes.routing.websocket_urlpatterns
+        )
     ),
 })
-
-
-application = get_asgi_application()

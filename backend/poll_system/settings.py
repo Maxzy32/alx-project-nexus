@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_yasg",
     "channels",
+    "corsheaders",
 
     # Local
     "users",
@@ -55,7 +56,9 @@ INSTALLED_APPS = [
 
 
 # ASGI_APPLICATION = "poll_system.asgi.application"
-ASGI_APPLICATION = "alx_project_nesux.asgi.application"
+ASGI_APPLICATION = "poll_system.asgi.application"
+
+
 
 # Redis channel layer
 CHANNEL_LAYERS = {
@@ -75,7 +78,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'poll_system.urls'
 
@@ -94,6 +100,34 @@ TEMPLATES = [
         },
     },
 ]
+
+
+# REST_FRAMEWORK = {
+#     "DEFAULT_AUTHENTICATION_CLASSES": [
+#         "authentication.authentication.JWTAuthentication",  # your custom JWT
+#         #  "rest_framework_simplejwt.authentication.JWTAuthentication", 
+#         # "rest_framework.authentication.SessionAuthentication",  # ❌ comment this if not needed
+#     ],
+# }
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "authentication.authentication.JWTAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+}
+
+
+# Celery / Redis config
+CELERY_BROKER_URL = "redis://redis-server:6379/0"
+CELERY_RESULT_BACKEND = "redis://redis-server:6379/0"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"
+
 
 
 SWAGGER_SETTINGS = {

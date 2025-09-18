@@ -25,7 +25,9 @@ services:
 
   # Django (ASGI with Daphne)
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: django_app
     command: >
       sh -c "python manage.py migrate &&
@@ -42,7 +44,9 @@ services:
 
   # Celery Worker
   worker:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: celery_worker
     command: celery -A alx_project_nesux worker --loglevel=info
     volumes:
@@ -55,7 +59,9 @@ services:
 
   # Celery Beat (Scheduler)
   beat:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: celery_beat
     command: celery -A alx_project_nesux beat --loglevel=info
     volumes:
