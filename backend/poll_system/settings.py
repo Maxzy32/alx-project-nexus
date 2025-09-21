@@ -9,7 +9,8 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import dj_database_url
+import os
 from pathlib import Path
 from celery.schedules import crontab
 
@@ -24,9 +25,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-#1msh%+0c2rrm$y(-$1+6&u41l4!kl8_c$ot-3cgz!*6!fcc#h'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost",]
+ALLOWED_HOSTS = [
+    "*",
+    "poll_system.onrender.com",
+    "localhost",
+    "127.0.0.1",
+]
 
 AUTH_USER_MODEL = "users.User"
 
@@ -66,10 +72,11 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],  # change to Render Redis in prod
+            "hosts": [(os.getenv("REDIS_URL", "redis://localhost:6379"))],
         },
     },
 }
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -79,10 +86,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware'
+    'corsheaders.middleware.CorsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "https://poll_system.onrender.com",
+]
+
 
 ROOT_URLCONF = 'poll_system.urls'
 
@@ -128,8 +139,8 @@ REST_FRAMEWORK = {
 
 
 # Celery / Redis config
-CELERY_BROKER_URL = "redis://redis:6379/0"
-CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+CELERY_BROKER_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
@@ -162,17 +173,14 @@ WSGI_APPLICATION = 'poll_system.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "nesux_db",
-        "USER": "nesux_user",
-        "PASSWORD": "root",
-        "HOST": "localhost",
-        "PORT": "5432",
-        "OPTIONS": {
-            "options": "-c search_path=nesux,public"
-        },
-    }
+    "default": dj_database_url.config(
+        default=os.getenv(
+            "DATABASE_URL",
+            "postgresql://nesux_user:root@localhost:5432/nesux_db"  # 👈 local fallback
+        ),
+        conn_max_age=600,
+        ssl_require=False,  # Render DB will require SSL, we'll override with env
+    )
 }
 
 
@@ -211,9 +219,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 
-STATIC_URL = "/static/"
-STATICFILES_DIRS = []
+# STATIC_URL = "/static/"
+# STATICFILES_DIRS = []
+# STATIC_ROOT = BASE_DIR / "staticfiles"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_URL = "/static/"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
 # Default primary key field type
