@@ -2,7 +2,7 @@
 from django.db import migrations
 
 def create_admin(apps, schema_editor):
-    from your_project_name.create_admin import run
+    from poll_system.create_admin import run
     run()
 
 class Migration(migrations.Migration):
