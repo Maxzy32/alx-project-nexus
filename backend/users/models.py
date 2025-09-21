@@ -15,7 +15,7 @@ class UserManager(BaseUserManager):
         user = self.model(username=username, email=email, **extra_fields)
 
         if password:
-            user.set_password(password)
+            user.set_password(password) 
             user.must_change_password = False  # if they set their own password
         else:
             user.must_change_password = True  # imported user, must reset

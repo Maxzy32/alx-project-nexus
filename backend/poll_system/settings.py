@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -101,6 +102,12 @@ TEMPLATES = [
     },
 ]
 
+CELERY_BEAT_SCHEDULE = {
+    "deactivate-expired-polls-every-5-mins": {
+        "task": "polls.tasks.deactivate_expired_polls",
+        "schedule": crontab(minute="*/5"),  # every 5 minutes
+    },
+}
 
 # REST_FRAMEWORK = {
 #     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -121,8 +128,8 @@ REST_FRAMEWORK = {
 
 
 # Celery / Redis config
-CELERY_BROKER_URL = "redis://redis-server:6379/0"
-CELERY_RESULT_BACKEND = "redis://redis-server:6379/0"
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"

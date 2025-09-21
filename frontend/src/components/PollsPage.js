@@ -405,6 +405,7 @@ import {
   submitVote,
   connectToPollResults,
 } from "../ApiCalls/api";
+import AppNavbar from "./AppNavbar";
 import CountdownTimer from "./CountdownTimer";
 
 function PollsPage({ user, setUser }) {
@@ -413,6 +414,7 @@ function PollsPage({ user, setUser }) {
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showProfile, setShowProfile] = useState(false);
 
   // ✅ Load initial polls + results
   useEffect(() => {
@@ -539,28 +541,71 @@ useEffect(() => {
       setSelectedCandidate(null);
     } catch (err) {
       console.error("Error submitting vote:", err);
-      alert("There was an error submitting your vote.");
+      alert("You have already voted in this poll.");
     }
   };
 
   return (
-    <>
+    <div className="d-flex flex-column min-vh-100">
       {/* Navbar */}
-      <Navbar bg="primary" variant="dark" expand="lg" sticky="top">
-        <Container>
-          <Navbar.Brand href="#">⚡ Nesux Polls</Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="ms-auto">
-              <Nav.Link href="#polls">Polls</Nav.Link>
-              <Nav.Link as={Link} to="/results">
-                Results
-              </Nav.Link>
-              <Nav.Link href="#profile">Profile</Nav.Link>
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
+      {/* Navbar */}
+{/* <Navbar bg="primary" variant="dark" expand="lg" sticky="top" className="position-relative">
+  <Container>
+    <Navbar.Brand href="#">⚡ Nesux Polls</Navbar.Brand>
+    <Navbar.Toggle aria-controls="basic-navbar-nav" />
+    <Navbar.Collapse id="basic-navbar-nav">
+      <Nav className="ms-auto">
+        <Nav.Link href="#polls">Polls</Nav.Link>
+        <Nav.Link as={Link} to="/results">Results</Nav.Link>
+        <Nav.Link as={Link} to="/polls/adminmanager">Manage Polls</Nav.Link>
+        <Nav.Link as={Link} to="/users_manager">Manage Users</Nav.Link>
+        <Nav.Link as={Link} to="/general_history">Votinng Outcomes</Nav.Link>
+        <Nav.Link onClick={() => setShowProfile(prev => !prev)}>Profile</Nav.Link>
+      </Nav>
+    </Navbar.Collapse>
+
+  
+    {showProfile && (
+  <div
+    className="position-absolute mt-2"
+    style={{
+      top: "100%",
+      right: "1rem", // keeps it slightly away from the right edge
+      zIndex: 1000,
+      minWidth: "200px",
+      maxWidth: "90vw", // responsive width for mobile
+    }}
+  >
+    <Card className="shadow-lg border-0">
+      <Card.Body className="text-center">
+        <Card.Title className="fw-bold">User Profile 👤</Card.Title>
+        {user ? (
+          <>
+            <Card.Text>Logged in as <b>{user.username}</b></Card.Text>
+            <Button
+              variant="outline-danger"
+              onClick={() => {
+                localStorage.removeItem("access_token");
+                localStorage.removeItem("refresh_token");
+                localStorage.removeItem("user");
+                setUser(null);
+              }}
+            >
+              Logout
+            </Button>
+          </>
+        ) : (
+          <Card.Text className="text-muted">Not logged in</Card.Text>
+        )}
+      </Card.Body>
+    </Card>
+  </div>
+)}
+  </Container>
+</Navbar> */}
+
+<AppNavbar/>
+
 
       {/* Hero Section */}
       <section className="bg-light py-5 text-center">
@@ -572,7 +617,8 @@ useEffect(() => {
         </Container>
       </section>
 
-      {/* Main Content */}
+
+{/*     
       <Container className="mt-5">
         <Row>
           <Col md={8}>
@@ -592,12 +638,12 @@ useEffect(() => {
                   <CountdownTimer endTime={poll.end_time} startTime={poll.created_at} />
 
 
-                  {/* ✅ Total votes */}
+                  
                   <p className="fw-bold text-success">
                     Total Votes: {poll.total_votes || 0}
                   </p>
 
-                  {/* Poll Options */}
+                  
                   {poll.options?.length > 0 && (
                     <ListGroup className="mb-3">
                       <h6>Options:</h6>
@@ -617,7 +663,7 @@ useEffect(() => {
                     </ListGroup>
                   )}
 
-                  {/* Candidates */}
+                  
                   {poll.candidates?.length > 0 && (
                     <ListGroup className="mb-3">
                       <h6>Candidates:</h6>
@@ -645,7 +691,7 @@ useEffect(() => {
                     Submit Vote
                   </Button>
 
-                  {/* Live Results */}
+                  
                   <h5 className="mt-4 fw-bold text-primary">Live Results</h5>
                   {poll.options?.map((option) => {
                     const votes = option.votes || 0;
@@ -689,44 +735,144 @@ useEffect(() => {
             ))}
           </Col>
 
-          {/* User Profile */}
-          <Col md={4}>
-            <Card className="shadow-lg border-0">
-              <Card.Body className="text-center">
-                <Card.Title className="fw-bold">User Profile 👤</Card.Title>
-                {user ? (
-                  <>
-                    <Card.Text>
-                      Logged in as <b>{user.username}</b>
-                    </Card.Text>
-                    <Button
-                      variant="outline-danger"
-                      onClick={() => {
-                        localStorage.removeItem("access_token");
-                        localStorage.removeItem("refresh_token");
-                        localStorage.removeItem("user");
-                        setUser(null);
-                      }}
-                    >
-                      Logout
-                    </Button>
-                  </>
-                ) : (
-                  <Card.Text className="text-muted">Not logged in</Card.Text>
-                )}
-              </Card.Body>
-            </Card>
-          </Col>
+        
         </Row>
       </Container>
+      */}
+
+      <section
+  className="d-flex justify-content-center align-items-center mt-3"
+   // full height minus navbar/footer
+>
+  <Container>
+    <Row className="justify-content-center">
+       <Col md={8}>
+            {loading && <p>Loading active polls...</p>}
+            {!loading && error && <p className="text-danger">{error}</p>}
+
+            {polls.map((poll) => (
+              <Card key={poll.poll_id} className="mb-4 shadow-lg border-0">
+                <Card.Body>
+                  <Card.Title className="fw-bold text-primary">
+                    {poll.title || "Untitled Poll"}
+                  </Card.Title>
+                  <Card.Text >
+                    {poll.description || "No description available."}
+                  </Card.Text>
+
+                  <CountdownTimer endTime={poll.end_time} startTime={poll.created_at} />
+
+
+                  
+                  <p className="fw-bold text-success">
+                    Total Votes: {poll.total_votes || 0}
+                  </p>
+
+                  
+                  {poll.options?.length > 0 && (
+                    <ListGroup className="mb-3">
+                      <h6>Options:</h6>
+                      {poll.options.map((option) => (
+                        <ListGroup.Item
+                          key={option.option_id}
+                          action
+                          active={selectedOption === option.option_id}
+                          onClick={() => {
+                            setSelectedOption(option.option_id);
+                            setSelectedCandidate(null);
+                          }}
+                        >
+                          {option.option_text}
+                        </ListGroup.Item>
+                      ))}
+                    </ListGroup>
+                  )}
+
+                  
+                  {poll.candidates?.length > 0 && (
+                    <ListGroup className="mb-3">
+                      <h6>Candidates:</h6>
+                      {poll.candidates.map((candidate) => (
+                        <ListGroup.Item
+                          key={candidate.candidate_id}
+                          action
+                          active={selectedCandidate === candidate.candidate_id}
+                          onClick={() => {
+                            setSelectedCandidate(candidate.candidate_id);
+                            setSelectedOption(null);
+                          }}
+                        >
+                          {candidate.full_name}
+                        </ListGroup.Item>
+                      ))}
+                    </ListGroup>
+                  )}
+
+                  <Button
+                    variant="success"
+                    className="mt-3 me-2"
+                    onClick={() => handleVote(poll)}
+                  >
+                    Submit Vote
+                  </Button>
+
+                  
+                  <h5 className="mt-4 fw-bold text-primary">Live Results</h5>
+                  {poll.options?.map((option) => {
+                    const votes = option.votes || 0;
+                    const percentage = poll.total_votes
+                      ? Math.round((votes / poll.total_votes) * 100)
+                      : 0;
+                    return (
+                      <div key={option.option_id} className="mb-3">
+                        <span>
+                          {option.option_text} — <b>{votes} votes</b>
+                        </span>
+                        <ProgressBar
+                          now={percentage}
+                          label={`${percentage}%`}
+                          className="mb-2"
+                        />
+                      </div>
+                    );
+                  })}
+
+                  {poll.candidates?.map((candidate) => {
+                    const votes = candidate.votes || 0;
+                    const percentage = poll.total_votes
+                      ? Math.round((votes / poll.total_votes) * 100)
+                      : 0;
+                    return (
+                      <div key={candidate.candidate_id} className="mb-3">
+                        <span>
+                          {candidate.full_name} — <b>{votes} votes</b>
+                        </span>
+                        <ProgressBar
+                          now={percentage}
+                          label={`${percentage}%`}
+                          className="mb-2 bg-warning"
+                        />
+                      </div>
+                    );
+                  })}
+                </Card.Body>
+              </Card>
+            ))}
+          </Col>
+
+    </Row>
+  </Container>
+</section>
+
 
       {/* Footer */}
-      <footer className="bg-primary text-white text-center py-3 mt-5">
-        <Container>
-          <small>© 2025 Nesux Voting System. All Rights Reserved.</small>
-        </Container>
-      </footer>
-    </>
+<footer className="bg-primary text-white text-center py-3 mt-auto">
+  <Container>
+    <small>© 2025 Nesux Voting System. All Rights Reserved.</small>
+  </Container>
+</footer>
+
+    </div>
   );
 }
 

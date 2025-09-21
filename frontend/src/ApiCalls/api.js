@@ -196,6 +196,22 @@ export const fetchPolls = () => api.get("polls/");
 // Fetch a single poll by ID
 export const fetchPoll = (pollId) => api.get(`polls/${pollId}/`);
 
+export const createPoll = (data) => api.post("polls/", data);
+export const updatePoll = (pollId, data) => api.put(`polls/${pollId}/`, data);
+export const deletePoll = (pollId) => api.delete(`polls/${pollId}/`);
+export const togglePollStatus = (pollId, data) =>api.patch(`polls/${pollId}/`, data);
+
+// ✅ Poll Options API Calls
+export const createPollOption = (data) => api.post("poll-options/", data);
+export const updatePollOption = (optionId, data) => api.put(`poll-options/${optionId}/`, data);
+export const deletePollOption = (optionId) => api.delete(`poll-options/${optionId}/`);
+
+export const fetchUsers = () => api.get("users/");
+export const createUser = (data) => api.post("users/", data);
+export const updateUser = (userId, data) => api.put(`users/${userId}/`, data);
+export const deleteUser = (userId) => api.delete(`users/${userId}/`);
+
+
 // Submit a vote
 export const submitVote = (voteData) => api.post("votes/", voteData);
 
@@ -225,6 +241,9 @@ export const fetchUserVoteHistory = () => api.get("votes/users/me/votes/");
 // Fetch poll results (snapshot)
 export const fetchPollResults = (pollId) =>
   api.get(`votes/polls/${pollId}/results/`);
+// ApiCalls/api.js
+export const fetchAdminPolls = () => api.get("votes/polls/admin/");
+
 
 //
 // ===== WebSocket Functions =====

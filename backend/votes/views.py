@@ -317,6 +317,11 @@ from .models import Vote
 from .serializers import VoteSerializer, PollResultSerializer, UserVoteHistorySerializer
 from polls.models import Poll, PollOption
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.exceptions import ValidationError
+from django.db import IntegrityError
+from rest_framework import status
+
+
 
 
 class VoteViewSet(viewsets.ModelViewSet):
@@ -324,46 +329,52 @@ class VoteViewSet(viewsets.ModelViewSet):
     serializer_class = VoteSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    @swagger_auto_schema(tags=["Votes"], operation_summary="List votes")
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
-
-    @swagger_auto_schema(tags=["Votes"], operation_summary="Retrieve a vote")
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-
     @swagger_auto_schema(tags=["Votes"], operation_summary="Create a vote")
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # Save the vote
-        vote = serializer.save(user=request.user)
+        poll = serializer.validated_data["poll"]
 
-        poll = Poll.objects.get(pk=vote.poll.poll_id)
+        # ✅ First check: has user already voted?
+        if Vote.objects.filter(user=request.user, poll=poll).exists():
+            return Response(
+                {"detail": "You have already voted in this poll."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            # Try saving the vote (DB will enforce uniqueness too)
+            vote = serializer.save(user=request.user)
+        except IntegrityError:
+            # ✅ Clean error response (instead of 500)
+            return Response(
+                {"detail": "You have already voted in this poll."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # --- Recalculate poll results ---
         total_votes = Vote.objects.filter(poll=poll).count()
 
-        # per-option counts
-        option_results = []
-        for option in PollOption.objects.filter(poll=poll):
-            count = Vote.objects.filter(poll=poll, option=option).count()
-            option_results.append({
+        option_results = [
+            {
                 "option_id": option.option_id,
                 "option_text": option.option_text,
-                "votes": count,
-            })
+                "votes": Vote.objects.filter(poll=poll, option=option).count(),
+            }
+            for option in PollOption.objects.filter(poll=poll)
+        ]
 
-        # per-candidate counts
-        candidate_results = []
-        for candidate in Candidate.objects.filter(poll=poll):
-            count = Vote.objects.filter(poll=poll, candidate=candidate).count()
-            candidate_results.append({
+        candidate_results = [
+            {
                 "candidate_id": candidate.candidate_id,
                 "full_name": candidate.full_name,
-                "votes": count,
-            })
+                "votes": Vote.objects.filter(poll=poll, candidate=candidate).count(),
+            }
+            for candidate in Candidate.objects.filter(poll=poll)
+        ]
 
-        # Notify WebSocket clients subscribed to this poll
+        # Notify WebSocket clients
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             f"poll_{poll.poll_id}_votes",
@@ -383,8 +394,6 @@ class VoteViewSet(viewsets.ModelViewSet):
             {"message": "Vote successfully cast", "vote": VoteSerializer(vote).data},
             status=status.HTTP_201_CREATED
         )
-
-
 class UserVoteHistoryView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -394,6 +403,45 @@ class UserVoteHistoryView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+# class PollResultsView(APIView):
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def get(self, request, poll_id):
+#         try:
+#             poll = Poll.objects.get(pk=poll_id)
+#         except Poll.DoesNotExist:
+#             return Response({"error": "Poll not found"}, status=status.HTTP_404_NOT_FOUND)
+
+#         option_results = []
+#         for option in PollOption.objects.filter(poll=poll):
+#             count = Vote.objects.filter(poll=poll, option=option).count()
+#             option_results.append({
+#                 "option_id": option.option_id,
+#                 "option_text": option.option_text,
+#                 "votes": count,
+#             })
+
+#         candidate_results = []
+#         for candidate in Candidate.objects.filter(poll=poll):
+#             count = Vote.objects.filter(poll=poll, candidate=candidate).count()
+#             candidate_results.append({
+#                 "candidate_id": candidate.candidate_id,
+#                 "full_name": candidate.full_name,
+#                 "votes": count,
+#             })
+
+#         result_data = {
+#             "poll_id": poll.poll_id,
+#             "title": poll.title,
+#             "total_votes": Vote.objects.filter(poll=poll).count(),
+#             "options": option_results,
+#             "candidates": candidate_results,
+#         }
+
+#         serializer = PollResultSerializer(result_data)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+
+# votes/views.py
 class PollResultsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -403,22 +451,26 @@ class PollResultsView(APIView):
         except Poll.DoesNotExist:
             return Response({"error": "Poll not found"}, status=status.HTTP_404_NOT_FOUND)
 
+        # --- options with voters ---
         option_results = []
         for option in PollOption.objects.filter(poll=poll):
-            count = Vote.objects.filter(poll=poll, option=option).count()
+            votes = Vote.objects.filter(poll=poll, option=option).select_related("user")
             option_results.append({
                 "option_id": option.option_id,
                 "option_text": option.option_text,
-                "votes": count,
+                "votes": votes.count(),
+                "voters": [v.user.username for v in votes]  # 👈 list usernames
             })
 
+        # --- candidates with voters ---
         candidate_results = []
         for candidate in Candidate.objects.filter(poll=poll):
-            count = Vote.objects.filter(poll=poll, candidate=candidate).count()
+            votes = Vote.objects.filter(poll=poll, candidate=candidate).select_related("user")
             candidate_results.append({
                 "candidate_id": candidate.candidate_id,
                 "full_name": candidate.full_name,
-                "votes": count,
+                "votes": votes.count(),
+                "voters": [v.user.username for v in votes]  # 👈 list usernames
             })
 
         result_data = {
@@ -429,5 +481,87 @@ class PollResultsView(APIView):
             "candidates": candidate_results,
         }
 
-        serializer = PollResultSerializer(result_data)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(result_data, status=status.HTTP_200_OK)
+
+# class AdminPollsView(APIView):
+    
+
+#     def get(self, request):
+#         # Fetch polls where the requesting user is the creator/admin
+#         # polls = Poll.objects.filter(created_by=request.user)  
+#         polls = Poll.objects.filter(creator=request.user)
+#         data = []
+
+#         for poll in polls:
+#             # Options with votes
+#             options = []
+#             for opt in PollOption.objects.filter(poll=poll):
+#                 votes = Vote.objects.filter(poll=poll, option=opt).select_related("user")
+#                 options.append({
+#                     "option_id": opt.option_id,
+#                     "option_text": opt.option_text,
+#                     "votes": votes.count(),
+#                     "voters": [v.user.username for v in votes]
+#                 })
+
+#             # Candidates with votes
+#             candidates = []
+#             for cand in Candidate.objects.filter(poll=poll):
+#                 votes = Vote.objects.filter(poll=poll, candidate=cand).select_related("user")
+#                 candidates.append({
+#                     "candidate_id": cand.candidate_id,
+#                     "full_name": cand.full_name,
+#                     "votes": votes.count(),
+#                     "voters": [v.user.username for v in votes]
+#                 })
+
+#             data.append({
+#                 "poll_id": poll.poll_id,
+#                 "title": poll.title,
+#                 "total_votes": Vote.objects.filter(poll=poll).count(),
+#                 "options": options,
+#                 "candidates": candidates
+#             })
+
+#         return Response(data, status=200)
+
+class AdminPollsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]  # 👈 add this
+
+    def get(self, request):
+        # Now request.user is guaranteed to be authenticated
+        polls = Poll.objects.filter(creator=request.user)
+        data = []
+
+        for poll in polls:
+            # Options with votes
+            options = []
+            for opt in PollOption.objects.filter(poll=poll):
+                votes = Vote.objects.filter(poll=poll, option=opt).select_related("user")
+                options.append({
+                    "option_id": opt.option_id,
+                    "option_text": opt.option_text,
+                    "votes": votes.count(),
+                    "voters": [v.user.username for v in votes]
+                })
+
+            # Candidates with votes
+            candidates = []
+            for cand in Candidate.objects.filter(poll=poll):
+                votes = Vote.objects.filter(poll=poll, candidate=cand).select_related("user")
+                candidates.append({
+                    "candidate_id": cand.candidate_id,
+                    "full_name": cand.full_name,
+                    "votes": votes.count(),
+                    "voters": [v.user.username for v in votes]
+                })
+
+            data.append({
+                "poll_id": poll.poll_id,
+                "title": poll.title,
+                "total_votes": Vote.objects.filter(poll=poll).count(),
+                "options": options,
+                "candidates": candidates
+            })
+
+        return Response(data, status=200)
