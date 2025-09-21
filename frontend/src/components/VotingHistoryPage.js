@@ -6,14 +6,11 @@ import {
   Modal,
   Row,
   Col,
-  Navbar,
   Container,
-  Nav,
   Badge,
   Tab,
   Tabs,
 } from "react-bootstrap";
-import { Link } from "react-router-dom";
 import {
   BarChart,
   Bar,
@@ -30,7 +27,6 @@ import {
 import {
   fetchUserVoteHistory,
   fetchPollResults,
-  connectToPollResults,
 } from "../ApiCalls/api";
 import AppNavbar from "./AppNavbar";
 
@@ -66,22 +62,7 @@ const VotingHistoryPage = () => {
 
   return (
     <div className="d-flex flex-column min-vh-100">
-      {/* Navbar */}
-      {/* <Navbar bg="primary" variant="dark" expand="lg" sticky="top">
-        <Container>
-          <Navbar.Brand href="#">⚡ Nesux Polls</Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="ms-auto">
-              <Nav.Link as={Link} to="/">Polls</Nav.Link>
-              <Nav.Link as={Link} to="/results">Results</Nav.Link>
-              <Nav.Link as={Link} to="/general_history">Votinng Outcomes</Nav.Link>
-              
-              <Nav.Link href="#profile">Profile</Nav.Link>
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar> */}
+    
       <AppNavbar/>
 
       <Container className="py-4">

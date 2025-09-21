@@ -6,7 +6,6 @@ import VotingHistoryPage from "./components/VotingHistoryPage";
 import PollManager from "./components/PollsManager";
 import UserManager from "./components/UserManager";
 import VotingOutcomes from "./components/GeneralVotesHistory";
-import { UserProvider } from "./components/AppNavbar";
 import { UserContext } from './components/UserContext';
 import { Spinner } from "react-bootstrap";
 
