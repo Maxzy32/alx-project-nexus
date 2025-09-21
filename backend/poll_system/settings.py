@@ -91,7 +91,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "https://poll_system.onrender.com",
+    "https://project_nexus_poll_system.onrender.com",
 ]
 
 
