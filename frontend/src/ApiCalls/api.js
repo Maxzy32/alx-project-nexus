@@ -1,8 +1,19 @@
 import axios from "axios";
 
 // Base URL of your backend (adjust for local or deployed server)
-const API_BASE = "http://localhost:8000/api/";
-const WS_BASE = "ws://localhost:8000/ws/"; 
+// const API_BASE = "http://localhost:8000/api/";
+// const WS_BASE = "ws://localhost:8000/ws/"; 
+
+// export const api = axios.create({
+//   baseURL: API_BASE,
+//   headers: {
+//     "Content-Type": "application/json",
+//   },
+// });
+
+
+const API_BASE = process.env.REACT_APP_API_BASE;
+const WS_BASE = process.env.REACT_APP_WS_BASE;
 
 export const api = axios.create({
   baseURL: API_BASE,
