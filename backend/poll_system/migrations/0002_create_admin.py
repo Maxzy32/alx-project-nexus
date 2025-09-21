@@ -1,16 +1,19 @@
-# your_app/migrations/0002_create_admin.py
-from django.db import migrations
+# create_admin.py
+from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 
-def create_admin(apps, schema_editor):
-    from poll_system.create_admin import run
-    run()
+User = get_user_model()
 
-class Migration(migrations.Migration):
+def run():
+    username = "admin"
+    email = "admin@gmail.com"
+    password = "Max@2024"  # Change this before pushing
 
-    dependencies = [
-        ("poll_system", "0001_initial"),
-    ]
-
-    operations = [
-        migrations.RunPython(create_admin),
-    ]
+    try:
+        if not User.objects.filter(username=username).exists():
+            User.objects.create_superuser(username=username, email=email, password=password)
+            print("✅ Superuser created")
+        else:
+            print("⚠️ Superuser already exists")
+    except IntegrityError as e:
+        print("❌ Error creating superuser:", e)
