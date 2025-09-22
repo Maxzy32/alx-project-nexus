@@ -43,51 +43,26 @@ const { user, setUser } = useContext(UserContext);
   }
 
   return (
-    // <Router>
-    //   {!user ? (
-    //     <LoginPage setUser={setUser} />
-    //   ) : (
-    //     <Routes>
-    //       {/* Default home (polls) */}
-    //       <Route path="/" element={<PollsPage user={user} setUser={setUser} />} />
+    <Router>
+      {!user ? (
+        <LoginPage setUser={setUser} />
+      ) : (
+        <Routes>
+          {/* Default home (polls) */}
+          <Route path="/" element={<PollsPage user={user} setUser={setUser} />} />
           
-    //       {/* Results / voting history */}
-    //       <Route path="/results" element={<VotingHistoryPage />} />
-    //        <Route path="/polls/adminmanager" element={<PollManager />} />
-    //        <Route path="/users_manager" element={<UserManager />} />
-    //        <Route path="/general_history" element={<VotingOutcomes />} />
+          {/* Results / voting history */}
+          <Route path="/results" element={<VotingHistoryPage />} />
+           <Route path="/polls/adminmanager" element={<PollManager />} />
+           <Route path="/users_manager" element={<UserManager />} />
+           <Route path="/general_history" element={<VotingOutcomes />} />
 
 
-    //       {/* Redirect unknown routes */}
-    //       <Route path="*" element={<Navigate to="/" />} />
-    //     </Routes>
-    //   )}
-    // </Router>
-   <Router>
-  {!user ? (
-    <Routes>
-      {/* Show UserManager as landing page */}
-      <Route path="/" element={<UserManager />} />
-      
-      {/* Temporarily allow login access */}
-      <Route path="/login" element={<LoginPage setUser={setUser} />} />
-      
-      {/* Redirect unknown routes */}
-      <Route path="*" element={<Navigate to="/" />} />
-    </Routes>
-  ) : (
-    <Routes>
-      {/* Authenticated users */}
-      <Route path="/" element={<UserManager />} />
-      <Route path="/results" element={<VotingHistoryPage />} />
-      <Route path="/polls/adminmanager" element={<PollManager />} />
-      <Route path="/general_history" element={<VotingOutcomes />} />
-      <Route path="*" element={<Navigate to="/" />} />
-    </Routes>
-  )}
-</Router>
-
-
+          {/* Redirect unknown routes */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      )}
+    </Router>
   );
 }
 
