@@ -12,8 +12,9 @@ import axios from "axios";
 // });
 
 
-const API_BASE = process.env.REACT_APP_API_BASE;
-const WS_BASE = process.env.REACT_APP_WS_BASE;
+const API_BASE = "https://poll-system-ezs2.onrender.com/api/";
+const WS_BASE = "wss://poll-system-ezs2.onrender.com/ws/";
+
 
 export const api = axios.create({
   baseURL: API_BASE,
