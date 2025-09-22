@@ -43,26 +43,54 @@ const { user, setUser } = useContext(UserContext);
   }
 
   return (
-    <Router>
-      {!user ? (
-        <LoginPage setUser={setUser} />
-      ) : (
-        <Routes>
-          {/* Default home (polls) */}
-          <Route path="/" element={<PollsPage user={user} setUser={setUser} />} />
+    // <Router>
+    //   {!user ? (
+    //     <LoginPage setUser={setUser} />
+    //   ) : (
+    //     <Routes>
+    //       {/* Default home (polls) */}
+    //       <Route path="/" element={<PollsPage user={user} setUser={setUser} />} />
           
-          {/* Results / voting history */}
-          <Route path="/results" element={<VotingHistoryPage />} />
-           <Route path="/polls/adminmanager" element={<PollManager />} />
-           <Route path="/users_manager" element={<UserManager />} />
-           <Route path="/general_history" element={<VotingOutcomes />} />
+    //       {/* Results / voting history */}
+    //       <Route path="/results" element={<VotingHistoryPage />} />
+    //        <Route path="/polls/adminmanager" element={<PollManager />} />
+    //        <Route path="/users_manager" element={<UserManager />} />
+    //        <Route path="/general_history" element={<VotingOutcomes />} />
 
 
-          {/* Redirect unknown routes */}
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      )}
-    </Router>
+    //       {/* Redirect unknown routes */}
+    //       <Route path="*" element={<Navigate to="/" />} />
+    //     </Routes>
+    //   )}
+    // </Router>
+    <Router>
+  {!user ? (
+    <Routes>
+      {/* Show login if not authenticated */}
+      <Route path="/" element={<LoginPage setUser={setUser} />} />
+      {/* Temporarily allow UserManager without login */}
+      <Route path="/users_manager" element={<UserManager />} />
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
+  ) : (
+    <Routes>
+      {/* Default home (polls) */}
+      <Route path="/" element={<PollsPage user={user} setUser={setUser} />} />
+
+      {/* Results / voting history */}
+      <Route path="/results" element={<VotingHistoryPage />} />
+      <Route path="/polls/adminmanager" element={<PollManager />} />
+      <Route path="/general_history" element={<VotingOutcomes />} />
+
+      {/* You could also leave UserManager here if you want it protected */}
+      {/* <Route path="/users_manager" element={<UserManager />} /> */}
+
+      {/* Redirect unknown routes */}
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
+  )}
+</Router>
+
   );
 }
 
