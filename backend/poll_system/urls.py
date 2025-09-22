@@ -60,6 +60,7 @@ router.register(r'candidates', CandidateViewSet, basename='candidate')
 # router.register(r'votes', VoteViewSet, basename='vote')
 
 urlpatterns = [
+    path("", root_view), 
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path("api/auth/", include("authentication.urls")),
