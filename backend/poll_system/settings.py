@@ -173,14 +173,7 @@ WSGI_APPLICATION = 'poll_system.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    "default": dj_database_url.config(
-        default=os.getenv(
-            "DATABASE_URL",
-            "postgresql://nesux_user:root@localhost:5432/nesux_db"  # 👈 local fallback
-        ),
-        conn_max_age=600,
-        ssl_require=False,  # Render DB will require SSL, we'll override with env
-    )
+    "default": dj_database_url.parse(os.environ.get("DATABASE_URL"))
 }
 
 
