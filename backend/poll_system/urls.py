@@ -35,7 +35,7 @@ from votes.views import PollResultsView
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from django.conf.urls.static import static
-
+from django.http import JsonResponse
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -58,6 +58,10 @@ router.register(r'polls', PollViewSet, basename='poll')
 router.register(r'poll-options', PollOptionViewSet, basename='poll-option')
 router.register(r'candidates', CandidateViewSet, basename='candidate')
 # router.register(r'votes', VoteViewSet, basename='vote')
+
+
+def root_view(request):
+    return JsonResponse({"message": "Backend is running 🚀"})
 
 urlpatterns = [
     path("", root_view), 
