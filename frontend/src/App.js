@@ -63,33 +63,30 @@ const { user, setUser } = useContext(UserContext);
     //     </Routes>
     //   )}
     // </Router>
-    <Router>
+   <Router>
   {!user ? (
     <Routes>
-      {/* Show login if not authenticated */}
-      <Route path="/" element={<LoginPage setUser={setUser} />} />
-      {/* Temporarily allow UserManager without login */}
-      <Route path="/users_manager" element={<UserManager />} />
+      {/* Show UserManager as landing page */}
+      <Route path="/" element={<UserManager />} />
+      
+      {/* Temporarily allow login access */}
+      <Route path="/login" element={<LoginPage setUser={setUser} />} />
+      
+      {/* Redirect unknown routes */}
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   ) : (
     <Routes>
-      {/* Default home (polls) */}
-      <Route path="/" element={<PollsPage user={user} setUser={setUser} />} />
-
-      {/* Results / voting history */}
+      {/* Authenticated users */}
+      <Route path="/" element={<UserManager />} />
       <Route path="/results" element={<VotingHistoryPage />} />
       <Route path="/polls/adminmanager" element={<PollManager />} />
       <Route path="/general_history" element={<VotingOutcomes />} />
-
-      {/* You could also leave UserManager here if you want it protected */}
-      {/* <Route path="/users_manager" element={<UserManager />} /> */}
-
-      {/* Redirect unknown routes */}
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   )}
 </Router>
+
 
   );
 }
