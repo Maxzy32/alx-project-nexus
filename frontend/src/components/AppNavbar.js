@@ -25,7 +25,7 @@ const AppNavbar = () => {
                     <Nav.Link as={Link} to="/general_history">Voting Outcomes</Nav.Link>
                   </>
                 )}
-                <Nav.Link onClick={() => setShowProfile(prev => !prev)}>Profile</Nav.Link>
+                <Nav.Link onClick={() => setShowProfile(prev => !prev)}>Logout</Nav.Link>
               </>
             )}
             {!user && <Nav.Link as={Link} to="/login">Login</Nav.Link>}
