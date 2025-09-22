@@ -8,9 +8,10 @@ def create_admin(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("users", "initial"),
+        ("users", "0001_initial"),  # ✅ correct reference
     ]
 
     operations = [
         migrations.RunPython(create_admin),
     ]
+
