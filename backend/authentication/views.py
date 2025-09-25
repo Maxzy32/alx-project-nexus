@@ -52,12 +52,12 @@ class LoginView(APIView):
             user = User.objects.get(username=username)
         except User.DoesNotExist:
             LoginAttempt.objects.create(user=None, ip_address=ip, success=False)
-            return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"error": "Invalid username"}, status=status.HTTP_401_UNAUTHORIZED)
 
         # Use Django's password checker
         if not user.check_password(password):
             LoginAttempt.objects.create(user=user, ip_address=ip, success=False)
-            return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"error": "Invalid password"}, status=status.HTTP_401_UNAUTHORIZED)
 
         # Log success
         LoginAttempt.objects.create(user=user, ip_address=ip, success=True)

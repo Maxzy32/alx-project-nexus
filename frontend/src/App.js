@@ -14,23 +14,39 @@ function App() {
 const { user, setUser } = useContext(UserContext);
   const [loading, setLoading] = useState(true);
 
-  // Load user from localStorage on mount
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
-  }, []);
+  // // Load user from localStorage on mount
+  // useEffect(() => {
+  //   const savedUser = localStorage.getItem("user");
+  //   if (savedUser) {
+  //     setUser(JSON.parse(savedUser));
+  //   }
+  //   setLoading(false);
+  // }, []);
 
-  // Save user to localStorage whenever it changes
+  // // Save user to localStorage whenever it changes
+  // useEffect(() => {
+  //   if (user) {
+  //     localStorage.setItem("user", JSON.stringify(user));
+  //   } else {
+  //     localStorage.removeItem("user");
+  //   }
+  // }, [user]);
+
+
   useEffect(() => {
-    if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
-    } else {
-      localStorage.removeItem("user");
-    }
-  }, [user]);
+  const savedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
+  const accessToken = localStorage.getItem("access_token") || sessionStorage.getItem("access_token");
+  const refreshToken = localStorage.getItem("refresh_token") || sessionStorage.getItem("refresh_token");
+
+  if (savedUser && accessToken && refreshToken) {
+    setUser(JSON.parse(savedUser));
+  } else {
+    setUser(null); // not logged in
+  }
+
+  setLoading(false);
+}, []);
+
 
   if (loading) {
     return (

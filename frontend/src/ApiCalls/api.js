@@ -42,6 +42,8 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    // Only handle token refresh for existing sessions
     if (
       error.response &&
       error.response.status === 401 &&
@@ -52,33 +54,36 @@ api.interceptors.response.use(
         const refreshToken =
           localStorage.getItem("refresh_token") ||
           sessionStorage.getItem("refresh_token");
-        if (!refreshToken) throw new Error("No refresh token available");
+
+        if (!refreshToken) {
+          // ❌ Don't reload — let the login page handle it
+          return Promise.reject(error);
+        }
 
         // Request a new access token
         const res = await axios.post(`${API_BASE}auth/refresh/`, {
           refresh: refreshToken,
         });
 
-        // Save new access token (wherever refresh token was stored)
+        // Save new access token
         if (localStorage.getItem("refresh_token")) {
           localStorage.setItem("access_token", res.data.access);
         } else {
           sessionStorage.setItem("access_token", res.data.access);
         }
 
-        // Retry original request
-        originalRequest.headers[
-          "Authorization"
-        ] = `Bearer ${res.data.access}`;
+        // Retry original request with new token
+        originalRequest.headers["Authorization"] = `Bearer ${res.data.access}`;
         return api(originalRequest);
       } catch (err) {
         console.error("Token refresh failed", err);
         localStorage.clear();
         sessionStorage.clear();
-        window.location.reload();
+        // 🚫 Removed window.location.reload()
         return Promise.reject(err);
       }
     }
+
     return Promise.reject(error);
   }
 );

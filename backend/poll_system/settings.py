@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-#1msh%+0c2rrm$y(-$1+6&u41l4!kl8_c$ot-3cgz!*6!fcc#h'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG =False
 
 ALLOWED_HOSTS = [
     "*",
@@ -82,12 +82,12 @@ CHANNEL_LAYERS = {
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware', 
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
@@ -97,6 +97,17 @@ CORS_ALLOWED_ORIGINS = [
 
 
 ROOT_URLCONF = 'poll_system.urls'
+
+
+
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",
+#     "http://127.0.0.1:3000",
+# ]
+
+
+# ROOT_URLCONF = 'poll_system.urls'
+
 
 TEMPLATES = [
     {
@@ -176,6 +187,23 @@ WSGI_APPLICATION = 'poll_system.wsgi.application'
 DATABASES = {
     "default": dj_database_url.parse(os.environ.get("DATABASE_URL"))
 }
+
+
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": "nesux_db",
+#         "USER": "nesux_user",
+#         "PASSWORD": "root",
+#         "HOST": "localhost",
+#         "PORT": "5432",
+#         "OPTIONS": {
+#             "options": "-c search_path=nesux"
+#         },
+#     }
+# }
+
 
 
 # Password validation

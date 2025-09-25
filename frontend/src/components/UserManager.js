@@ -14,12 +14,15 @@ import {
   
 } from "react-bootstrap";
 import AppNavbar from "./AppNavbar";
+import { FaEye, FaEyeSlash } from "react-icons/fa"
 
 
 const UserManager = () => {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
+const [showPassword, setShowPassword] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [password, setPassword] = useState("");
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({
     username: "",
@@ -35,6 +38,7 @@ const UserManager = () => {
   const loadUsers = async () => {
     try {
       const res = await fetchUsers();
+      console.log("Users data coming", res)
       setUsers(res.data);
     } catch (err) {
       console.error("Error fetching users:", err);
@@ -50,7 +54,7 @@ const UserManager = () => {
   const handleShowModal = (user = null) => {
     if (user) {
       setEditingUser(user);
-      setFormData({ username: user.username, email: user.email, password: "" });
+      setFormData({ username: user.username, email: user.email, password: user.password  });
     } else {
       setEditingUser(null);
       setFormData({ username: "", email: "", password: "" });
@@ -82,11 +86,17 @@ const UserManager = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      await updateUser(editingUser.user_id, {
-        username: formData.username,
-        email: formData.email,
-        ...(formData.password && { password: formData.password }), // only send if not empty
-      });
+   
+     const payload = {
+  username: formData.username,
+  email: formData.email,
+  ...(formData.password && { password: formData.password }), // only send if not empty
+};
+
+
+await updateUser(editingUser.user_id, payload);
+alert("Details updated successfully.");
+
       setEditingUser(null);
       setShowModal(false);
       loadUsers();
@@ -187,63 +197,87 @@ const UserManager = () => {
         </Table>
 
         {/* Modal */}
-        <Modal show={showModal} onHide={handleCloseModal}>
-          <Modal.Header closeButton>
-            <Modal.Title>
-              {editingUser ? "Edit User" : "Create User"}
-            </Modal.Title>
-          </Modal.Header>
-          <Form onSubmit={editingUser ? handleUpdate : handleCreate}>
-            <Modal.Body>
-              <Form.Group className="mb-3">
-                <Form.Label>Username</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  required
-                />
-              </Form.Group>
+  <Modal
+  show={showModal}
+  onHide={handleCloseModal}
+  centered
+  size="lg" // adjust: sm, lg, xl depending on needs
+>
+  <Modal.Header closeButton>
+    <Modal.Title>
+      {editingUser ? "Edit User" : "Create User"}
+    </Modal.Title>
+  </Modal.Header>
+  <Form onSubmit={editingUser ? handleUpdate : handleCreate}>
+    <Modal.Body>
+      <div className="container-fluid">
+        <div className="row">
+          <div className="col-12">
+            <Form.Group className="mb-3">
+              <Form.Label>Username</Form.Label>
+              <Form.Control
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+          </div>
 
-              <Form.Group className="mb-3">
-                <Form.Label>Email</Form.Label>
-                <Form.Control
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
-              </Form.Group>
+          <div className="col-12">
+            <Form.Group className="mb-3">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+          </div>
 
-              {/* Always show password field */}
-              <Form.Group className="mb-3">
-                <Form.Label>Password</Form.Label>
+          <div className="col-12">
+            <Form.Group className="mb-3">
+              <Form.Label>Password</Form.Label>
+              <div className="input-group">
                 <Form.Control
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
-                  value={formData.password}
+                  value={formData.password || ""}
                   onChange={handleChange}
                   placeholder={
                     editingUser
                       ? "Leave blank to keep current password"
                       : "Enter password"
                   }
-                  required={!editingUser} // required only on create
+                  required={!editingUser} // only required for create
                 />
-              </Form.Group>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={handleCloseModal}>
-                Cancel
-              </Button>
-              <Button type="submit" variant="primary">
-                {editingUser ? "Save Changes" : "Create"}
-              </Button>
-            </Modal.Footer>
-          </Form>
-        </Modal>
+                <Button
+                  variant="outline-secondary"
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </Button>
+              </div>
+            </Form.Group>
+          </div>
+        </div>
+      </div>
+    </Modal.Body>
+    <Modal.Footer>
+      <Button variant="secondary" onClick={handleCloseModal}>
+        Cancel
+      </Button>
+      <Button type="submit" variant="primary">
+        {editingUser ? "Save Changes" : "Create"}
+      </Button>
+    </Modal.Footer>
+  </Form>
+</Modal>
+
       </div>
     </div>
   );
