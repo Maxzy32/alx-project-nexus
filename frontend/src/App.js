@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+// import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./components/LoginPage";
 import PollsPage from "./components/PollsPage";
 import VotingHistoryPage from "./components/VotingHistoryPage";
