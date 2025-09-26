@@ -4,7 +4,6 @@ This project is developed as part of the ProDev Backend Engineering Program.
 It simulates the backend of an online poll and voting system, providing real-world experience in designing and implementing scalable backend solutions.
 
 The backend supports:
-
 User registration and authentication
 
 Poll creation and management
@@ -62,8 +61,7 @@ PollOption → Multiple choices under a poll
 
 Vote → Links user to poll and option, ensures one vote per user
 
-VoteToken (optional) → Enables anonymous or one-time voting
-
+VoteToken → Enables anonymous or one-time voting
 📌 Validation ensures no duplicate voting per user/poll.
 
 
@@ -143,16 +141,3 @@ User Imports Without Passwords
 
 Solution: Allowed password_hash to be nullable; force password reset on first login
 
-
-
-###📝 Best Practices & Takeaways
-
-Always enforce business rules at the database layer (not just in code)
-
-Cache smartly to improve performance but avoid stale data
-
-API-first development → design, document, then implement
-
-Use CI/CD pipelines to catch errors before deployment
-
-Real-world systems require thinking about security, scale, and user experience from the start
