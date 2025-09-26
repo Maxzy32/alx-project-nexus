@@ -41,7 +41,7 @@ const { user, setUser } = useContext(UserContext);
   if (savedUser && accessToken && refreshToken) {
     setUser(JSON.parse(savedUser));
   } else {
-    setUser(null); // not logged in
+    setUser(null); 
   }
 
   setLoading(false);
