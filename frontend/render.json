@@ -1,0 +1,16 @@
+{
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "https://poll-system-ezs2.onrender.com/api/$1"
+    },
+    {
+      "src": "/ws/(.*)",
+      "dest": "wss://poll-system-ezs2.onrender.com/ws/$1"
+    },
+    {
+      "src": "/.*",
+      "dest": "/index.html"
+    }
+  ]
+}

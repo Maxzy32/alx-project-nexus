@@ -1,4 +1,5 @@
 {
+  "root": "build/",
   "routes": {
     "/api/*": "https://poll-system-ezs2.onrender.com/api/*",
     "/ws/*": "wss://poll-system-ezs2.onrender.com/ws/*",
