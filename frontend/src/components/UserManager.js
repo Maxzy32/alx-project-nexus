@@ -201,7 +201,7 @@ alert("Details updated successfully.");
   show={showModal}
   onHide={handleCloseModal}
   centered
-  size="lg" // adjust: sm, lg, xl depending on needs
+  size="lg" 
 >
   <Modal.Header closeButton>
     <Modal.Title>
