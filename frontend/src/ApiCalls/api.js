@@ -12,8 +12,8 @@ import axios from "axios";
 // });
 
 
-const API_BASE = "https://poll-system-ezs2.onrender.com/api/";
-const WS_BASE = "wss://poll-system-ezs2.onrender.com/ws/";
+const API_BASE = "https://poll-system-bu7o.onrender.com/api/";
+const WS_BASE = "wss://poll-system-bu7o.onrender.com/ws/";
 
 
 export const api = axios.create({
